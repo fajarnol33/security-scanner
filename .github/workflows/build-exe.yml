@@ -13,9 +13,8 @@ jobs:
     steps:
     - name: 📥 Checkout Repository
       uses: actions/checkout@v4
-      
-    - name: 🐍 Setup Python 3.11
-      uses: actions/setup-python@v4
+        - name: 🐍 Setup Python 3.11
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         
@@ -84,23 +83,22 @@ jobs:
       run: |
         echo "=== Creating ZIP archive ==="
         powershell Compress-Archive -Path SecurityScanner_Portable\* -DestinationPath SecurityScanner-Portable-v1.0.zip
-        
-    - name: 📤 Upload EXE as Artifact
-      uses: actions/upload-artifact@v3
+          - name: 📤 Upload EXE as Artifact
+      uses: actions/upload-artifact@v4
       with:
         name: SecurityScanner-EXE
         path: dist/SecurityScanner.exe
         retention-days: 30
         
     - name: 📦 Upload Portable Package
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SecurityScanner-Portable-Package
         path: SecurityScanner_Portable/
         retention-days: 30
         
     - name: 📁 Upload ZIP Archive
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: SecurityScanner-Portable-ZIP
         path: SecurityScanner-Portable-v1.0.zip

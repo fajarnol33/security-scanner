@@ -21,9 +21,9 @@ wheels/
 *.egg
 MANIFEST
 
-# PyInstaller
+# PyInstaller  
 *.manifest
-*.spec
+# *.spec  # Commented out - we need SecurityScanner.spec
 
 # Installer logs
 pip-log.txt
