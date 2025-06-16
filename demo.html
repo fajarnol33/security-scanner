@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Scanner - Demo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        
+        .install-notice {
+            background: #ff6b6b;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .install-notice h3 { margin-bottom: 10px; }
+        .install-steps {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .step {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        
+        .demo-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .scan-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .form-group input[type="url"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+        
+        .scan-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .demo-result {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid #e74c3c;
+            margin: 20px 0;
+        }
+        
+        .severity { padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; color: white; }
+        .severity.critical { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .severity.high { background: linear-gradient(45deg, #e67e22, #d35400); }
+        
+        .payload { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px; padding: 8px 12px; font-family: 'Monaco', 'Consolas', monospace; font-size: 0.9rem; color: #e74c3c; }
+        
+        @media (max-width: 768px) { .form-group { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Security Scanner</h1>
+            <p>Website Vulnerability Assessment Tool - DEMO</p>
+        </div>
+        
+        <div class="install-notice">
+            <h3><i class="fas fa-exclamation-triangle"></i> Python Not Installed</h3>
+            <p>To run Security Scanner, you need to install Python first!</p>
+        </div>
+        
+        <div class="install-steps">
+            <h2><i class="fas fa-download"></i> How to Install Python</h2>
+            
+            <div class="step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Download Python</strong><br>
+                    Go to <a href="https://python.org/downloads/" target="_blank">python.org/downloads</a> and download Python 3.11+
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Install with PATH</strong><br>
+                    ✅ IMPORTANT: Check "Add Python to PATH" during installation
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Restart Terminal</strong><br>
+                    Close and reopen Command Prompt/PowerShell after installation
+                </div>
+            </div>
+            
+            <div class="step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Run Security Scanner</strong><br>
+                    Double-click <code>start.bat</code> or run <code>python app/main.py</code>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2><i class="fas fa-eye"></i> Security Scanner Preview</h2>
+            <p>This is how the Security Scanner will look once Python is installed:</p>
+            
+            <div class="scan-form">
+                <div class="form-group">
+                    <input type="url" placeholder="https://example.com" value="https://vulnerable-site.com" disabled>
+                    <button class="scan-btn" disabled><i class="fas fa-search"></i> Scan Website</button>
+                </div>
+            </div>
+            
+            <h3><i class="fas fa-chart-bar"></i> Sample Results</h3>
+            
+            <div class="demo-result">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <div>
+                        <h4>SQL Injection - Field: username</h4>
+                        <small>SQL Injection</small>
+                    </div>
+                    <div class="severity critical">Critical</div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h5><i class="fas fa-info-circle"></i> Penjelasan</h5>
+                    <p>Field "username" rentan terhadap SQL Injection. Database error terdeteksi.</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Cara Hacker Memanfaatkan</h5>
+                    <p>Hacker dapat bypass authentication dan akses data sensitif dalam database.</p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h5><i class="fas fa-code"></i> Payload yang Digunakan</h5>
+                    <code class="payload">' OR 1=1--</code>
+                </div>
+                
+                <div>
+                    <h5><i class="fas fa-tools"></i> Cara Mengatasi</h5>
+                    <p>Gunakan prepared statements dan validasi input yang ketat.</p>
+                </div>
+            </div>
+            
+            <div class="demo-result" style="border-color: #e67e22;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <div>
+                        <h4>Cross-Site Scripting (XSS)</h4>
+                        <small>XSS Attack</small>
+                    </div>
+                    <div class="severity high">High</div>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <h5><i class="fas fa-code"></i> Payload</h5>
+                    <code class="payload">&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+                </div>
+                
+                <div>
+                    <p><strong>Impact:</strong> Script injection dapat mencuri cookie dan session user</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2><i class="fas fa-shield-alt"></i> Features</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                    <h4><i class="fas fa-database"></i> SQL Injection</h4>
+                    <p>Advanced payload testing untuk database attacks</p>
+                </div>
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #e67e22;">
+                    <h4><i class="fas fa-code"></i> XSS Detection</h4>
+                    <p>Cross-site scripting vulnerability scanner</p>
+                </div>
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #8e44ad;">
+                    <h4><i class="fas fa-terminal"></i> Command Injection</h4>
+                    <p>System command execution testing</p>
+                </div>
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #f39c12;">
+                    <h4><i class="fas fa-folder-open"></i> File Exposure</h4>
+                    <p>Sensitive file and configuration detection</p>
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; color: white; margin-top: 50px; opacity: 0.8;">
+            <p><i class="fas fa-info-circle"></i> Educational Cybersecurity Tool - Use Responsibly</p>
+        </div>
+    </div>
+</body>
+</html>

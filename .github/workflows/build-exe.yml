@@ -1,0 +1,124 @@
+name: Build SecurityScanner EXE
+on: 
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  build-exe:
+    runs-on: windows-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: 📦 Install Build Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-build.txt
+        
+    - name: 🔍 Verify Files
+      run: |
+        echo "=== Checking project structure ==="
+        dir
+        echo "=== Checking app folder ==="
+        dir app
+        echo "=== Checking main.py ==="
+        if exist app\main.py echo "✅ main.py found" else echo "❌ main.py missing"
+        echo "=== Checking templates ==="
+        if exist app\templates\index.html echo "✅ template found" else echo "❌ template missing"
+        
+    - name: 🔨 Build Executable with PyInstaller
+      run: |
+        echo "=== Building SecurityScanner.exe ==="
+        pyinstaller SecurityScanner.spec --clean --noconfirm
+        
+    - name: 📋 Verify Build Output
+      run: |
+        echo "=== Checking build output ==="
+        if exist dist\SecurityScanner.exe (
+          echo "✅ SecurityScanner.exe created successfully!"
+          dir dist
+          echo "File size:"
+          for %%f in (dist\SecurityScanner.exe) do echo %%~zf bytes
+        ) else (
+          echo "❌ Build failed - EXE not found"
+          exit /b 1
+        )
+        
+    - name: 📝 Create Portable Package
+      run: |
+        echo "=== Creating portable package ==="
+        mkdir SecurityScanner_Portable
+        copy dist\SecurityScanner.exe SecurityScanner_Portable\
+        echo "# Security Scanner - Portable EXE" > SecurityScanner_Portable\README.txt
+        echo "" >> SecurityScanner_Portable\README.txt
+        echo "## How to Use:" >> SecurityScanner_Portable\README.txt
+        echo "1. Double-click SecurityScanner.exe" >> SecurityScanner_Portable\README.txt
+        echo "2. Browser will open to http://localhost:5000" >> SecurityScanner_Portable\README.txt
+        echo "3. Enter website URL and click 'Scan Website'" >> SecurityScanner_Portable\README.txt
+        echo "" >> SecurityScanner_Portable\README.txt
+        echo "## Features:" >> SecurityScanner_Portable\README.txt
+        echo "- SQL Injection Detection" >> SecurityScanner_Portable\README.txt
+        echo "- XSS Vulnerability Testing" >> SecurityScanner_Portable\README.txt
+        echo "- Command Injection Scanning" >> SecurityScanner_Portable\README.txt
+        echo "- Sensitive File Detection" >> SecurityScanner_Portable\README.txt
+        echo "- Security Headers Analysis" >> SecurityScanner_Portable\README.txt
+        echo "" >> SecurityScanner_Portable\README.txt
+        echo "## Important:" >> SecurityScanner_Portable\README.txt
+        echo "- Use only on websites you own or have permission to test" >> SecurityScanner_Portable\README.txt
+        echo "- For educational purposes only" >> SecurityScanner_Portable\README.txt
+        echo "- Some antivirus may flag as suspicious (false positive)" >> SecurityScanner_Portable\README.txt
+        echo "" >> SecurityScanner_Portable\README.txt
+        echo "Built on: %DATE% %TIME%" >> SecurityScanner_Portable\README.txt
+        echo "Version: 1.0.0" >> SecurityScanner_Portable\README.txt
+        
+    - name: 🗜️ Create ZIP Archive
+      run: |
+        echo "=== Creating ZIP archive ==="
+        powershell Compress-Archive -Path SecurityScanner_Portable\* -DestinationPath SecurityScanner-Portable-v1.0.zip
+        
+    - name: 📤 Upload EXE as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: SecurityScanner-EXE
+        path: dist/SecurityScanner.exe
+        retention-days: 30
+        
+    - name: 📦 Upload Portable Package
+      uses: actions/upload-artifact@v3
+      with:
+        name: SecurityScanner-Portable-Package
+        path: SecurityScanner_Portable/
+        retention-days: 30
+        
+    - name: 📁 Upload ZIP Archive
+      uses: actions/upload-artifact@v3
+      with:
+        name: SecurityScanner-Portable-ZIP
+        path: SecurityScanner-Portable-v1.0.zip
+        retention-days: 30
+        
+    - name: 🎉 Build Summary
+      run: |
+        echo "=========================================="
+        echo "🛡️  SecurityScanner Build Complete!"
+        echo "=========================================="
+        echo "✅ EXE Location: dist/SecurityScanner.exe"
+        echo "✅ Portable Package: SecurityScanner_Portable/"
+        echo "✅ ZIP Archive: SecurityScanner-Portable-v1.0.zip"
+        echo ""
+        echo "📥 Download from the 'Actions' tab:"
+        echo "   - SecurityScanner-EXE (single file)"
+        echo "   - SecurityScanner-Portable-Package (folder)"
+        echo "   - SecurityScanner-Portable-ZIP (compressed)"
+        echo ""
+        echo "🚀 Ready to use!"
+        echo "=========================================="

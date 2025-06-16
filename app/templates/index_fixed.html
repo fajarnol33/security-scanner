@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Scanner - Cek Kerentanan Website</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .scan-form {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .form-group input[type="url"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="url"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .scan-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .scan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .scan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .summary {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .summary h2 {
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .stat.critical { background: linear-gradient(45deg, #e74c3c, #c0392b); }
+        .stat.high { background: linear-gradient(45deg, #e67e22, #d35400); }
+        .stat.medium { background: linear-gradient(45deg, #f39c12, #e67e22); }
+        .stat.low { background: linear-gradient(45deg, #27ae60, #229954); }
+        .stat.total { background: linear-gradient(45deg, #3498db, #2980b9); }
+        
+        .vulnerabilities {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .vuln-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .vuln-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .vuln-card.critical { border-color: #e74c3c; }
+        .vuln-card.high { border-color: #e67e22; }
+        .vuln-card.medium { border-color: #f39c12; }
+        .vuln-card.low { border-color: #27ae60; }
+        
+        .vuln-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .vuln-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .vuln-category {
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .severity {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .severity.critical {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
+        .severity.high {
+            background: linear-gradient(45deg, #e67e22, #d35400);
+        }
+        
+        .severity.medium {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+        
+        .severity.low {
+            background: linear-gradient(45deg, #27ae60, #229954);
+        }
+        
+        .vuln-section {
+            margin-bottom: 15px;
+        }
+        
+        .vuln-section h4 {
+            color: #555;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .vuln-section p {
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .payload {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: #e74c3c;
+            display: inline-block;
+            word-break: break-all;
+        }
+        
+        .no-vulns {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .no-vulns i {
+            font-size: 3rem;
+            color: #27ae60;
+            margin-bottom: 15px;
+        }
+        
+        .no-vulns h3 {
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-group {
+                flex-direction: column;
+            }
+            
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Security Scanner</h1>
+            <p>Analisis kerentanan website untuk edukasi keamanan siber</p>
+        </div>
+        
+        <div class="scan-form">
+            <form method="post" id="scanForm">
+                <div class="form-group">
+                    <input type="url" name="url" id="urlInput" placeholder="Masukkan URL website (contoh: https://example.com)" value="{{ url }}" required>
+                    <button type="submit" class="scan-btn" id="scanBtn">
+                        <i class="fas fa-search"></i> Scan Website
+                    </button>
+                </div>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Sedang menganalisis kerentanan website...</p>
+            </div>
+        </div>
+        
+        {% if scan_summary and scan_summary.total > 0 %}
+        <div class="summary">
+            <h2><i class="fas fa-chart-bar"></i> Ringkasan Hasil Scan</h2>
+            <div class="stats">
+                <div class="stat total">
+                    <div style="font-size: 2rem;">{{ scan_summary.total }}</div>
+                    <div>Total Kerentanan</div>
+                </div>
+                {% if scan_summary.critical > 0 %}
+                <div class="stat critical">
+                    <div style="font-size: 2rem;">{{ scan_summary.critical }}</div>
+                    <div>Critical</div>
+                </div>
+                {% endif %}
+                {% if scan_summary.high > 0 %}
+                <div class="stat high">
+                    <div style="font-size: 2rem;">{{ scan_summary.high }}</div>
+                    <div>High</div>
+                </div>
+                {% endif %}
+                {% if scan_summary.medium > 0 %}
+                <div class="stat medium">
+                    <div style="font-size: 2rem;">{{ scan_summary.medium }}</div>
+                    <div>Medium</div>
+                </div>
+                {% endif %}
+                {% if scan_summary.low > 0 %}
+                <div class="stat low">
+                    <div style="font-size: 2rem;">{{ scan_summary.low }}</div>
+                    <div>Low</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if vulnerabilities %}
+        <div class="vulnerabilities">
+            {% for vuln in vulnerabilities %}
+            <div class="vuln-card {{ vuln.severity.lower() }}">
+                <div class="vuln-header">
+                    <div>
+                        <div class="vuln-title">{{ vuln.name }}</div>
+                        <div class="vuln-category">{{ vuln.category }}</div>
+                    </div>
+                    <div class="severity {{ vuln.severity.lower() }}">{{ vuln.severity }}</div>
+                </div>
+                
+                <div class="vuln-section">
+                    <h4><i class="fas fa-info-circle"></i> Penjelasan Kerentanan</h4>
+                    <p>{{ vuln.description }}</p>
+                </div>
+                
+                <div class="vuln-section">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Cara Hacker Memanfaatkan</h4>
+                    <p>{{ vuln.how }}</p>
+                </div>
+                
+                <div class="vuln-section">
+                    <h4><i class="fas fa-tools"></i> Cara Mengatasi</h4>
+                    <p>{{ vuln.mitigation }}</p>
+                </div>
+                
+                {% if vuln.payload_used %}
+                <div class="vuln-section">
+                    <h4><i class="fas fa-code"></i> Payload yang Digunakan</h4>
+                    <code class="payload">{{ vuln.payload_used }}</code>
+                </div>
+                {% endif %}
+                
+                {% if vuln.field %}
+                <div class="vuln-section">
+                    <h4><i class="fas fa-crosshairs"></i> Field/Parameter Rentan</h4>
+                    <p><strong>{{ vuln.field }}</strong></p>
+                </div>
+                {% endif %}
+                
+                {% if vuln.parameter %}
+                <div class="vuln-section">
+                    <h4><i class="fas fa-crosshairs"></i> Parameter Rentan</h4>
+                    <p><strong>{{ vuln.parameter }}</strong></p>
+                </div>
+                {% endif %}
+                
+                {% if vuln.url %}
+                <div class="vuln-section">
+                    <h4><i class="fas fa-link"></i> URL yang Terpengaruh</h4>
+                    <p><a href="{{ vuln.url }}" target="_blank" rel="noopener">{{ vuln.url }}</a></p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% elif url %}
+        <div class="no-vulns">
+            <i class="fas fa-shield-alt"></i>
+            <h3>Bagus! Tidak ada kerentanan yang terdeteksi</h3>
+            <p>Website {{ url }} tampaknya memiliki konfigurasi keamanan yang baik.</p>
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p><i class="fas fa-info-circle"></i> Tool ini dibuat untuk tujuan edukasi keamanan siber</p>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('scanForm').addEventListener('submit', function(e) {
+            const button = document.getElementById('scanBtn');
+            const loading = document.getElementById('loading');
+            
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scanning...';
+            loading.classList.add('show');
+            
+            // Timeout to prevent hanging
+            setTimeout(() => {
+                if (button.disabled) {
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fas fa-search"></i> Scan Website';
+                    loading.classList.remove('show');
+                }
+            }, 45000); // 45 seconds timeout
+        });
+        
+        // Auto-focus on URL input
+        document.getElementById('urlInput').focus();
+    </script>
+</body>
+</html>
