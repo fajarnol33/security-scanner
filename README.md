@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🛡️ Security Scanner - Website Vulnerability Assessment Tool
 
 Tool komprehensif untuk analisis kerentanan website dengan tujuan **edukasi keamanan siber**. Mengimplementasikan berbagai teknik penetration testing untuk mendeteksi kerentanan umum pada aplikasi web.
